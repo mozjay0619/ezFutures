@@ -15,6 +15,13 @@ class ezFutures():
     def submit(self, func, *args, **kwargs):
         
         self.core.submit(func, *args, **kwargs)
+
+    def globalize(self, local_var, global_name):
+
+        if self.parallelism_mode=='managed.processes':
+            return self.core.globalize(local_var, global_name)
+        else:    
+            raise Exception('[globalize] method only supported for parallelism_mode: managed.processes')
         
     def results(self):
         

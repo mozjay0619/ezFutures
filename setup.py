@@ -12,7 +12,7 @@ setup(
 	name="ezFutures", 
 	version=VERSION,
 	author="Jay Kim",
-	description="Wrapper for multiprocess concurrent futures",
+	description="Parallism made easy (and safe) with futures API",
 	long_description=long_description,
 	long_description_content_type="text/x-rst",
 	url="https://github.com/mozjay0619/ezFutures",

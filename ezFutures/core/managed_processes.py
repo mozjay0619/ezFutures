@@ -43,7 +43,7 @@ class WorkerProcess(Process):
 
 class ManagedProcesses():
     
-    def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60, *args, **kwargs):
+    def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60, n_retries=3, *args, **kwargs):
         
         self.task_idx = 0
         
@@ -66,6 +66,7 @@ class ManagedProcesses():
         self.verbose = verbose
         self.show_progress = show_progress
         self.timeout = timeout
+        self.n_retries = n_retries
         
         self.scattered_vars = dict()
         
@@ -165,7 +166,7 @@ class ManagedProcesses():
                         
                         fail_count = self.task_idx_attempt_dict[task_idx]
                         
-                        if fail_count < 3:
+                        if fail_count < self.n_retries:
                             
                             if self.verbose:
                                 print('    pending --> tasks: {}'.format(pending_task_idx))
@@ -197,7 +198,7 @@ class ManagedProcesses():
                         
                         fail_count = self.task_idx_attempt_dict[task_idx]
                         
-                        if fail_count < 3:
+                        if fail_count < self.n_retries:
                             
                             self.tasks.insert(0, pending_task)
                             
@@ -215,7 +216,7 @@ class ManagedProcesses():
                     
                         fail_count = self.task_idx_attempt_dict[task_idx]
                         
-                        if fail_count < 3:
+                        if fail_count < self.n_retries:
                             
                             self.tasks.insert(0, pending_task)
                             

@@ -3,6 +3,7 @@ from collections import defaultdict
 import time
 
 from .utils import printProgressBar
+from .utils import timeout
 
 
 class WorkerProcess(Process):
@@ -24,11 +25,16 @@ class WorkerProcess(Process):
         task_idx, func, args, kwargs = self.task
         
         try:
-            result = func(*args, **kwargs)
-            self.shared_error_dict[task_idx] = None
-            self.shared_status_dict[task_idx] = 'success'
-            self.shared_results_dict[task_idx] = result
+
+            with timeout(seconds=3):
+
+                result = func(*args, **kwargs)
+                self.shared_error_dict[task_idx] = None
+                self.shared_status_dict[task_idx] = 'success'
+                self.shared_results_dict[task_idx] = result
+
         except Exception as e:
+
             self.shared_error_dict[task_idx] = str(e)
             self.shared_status_dict[task_idx] = 'failure'
             self.shared_results_dict[task_idx] = None 

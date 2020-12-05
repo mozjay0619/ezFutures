@@ -196,6 +196,6 @@ class ezFutures2():
             printProgressBar(num_tasks, num_tasks)
             print()
             
-        return pm.shared_results_dict.values()
+        return self.shared_results_dict.values()
                 
                 

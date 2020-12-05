@@ -1,10 +1,8 @@
-__version__ = "0.0.b9"
+__version__ = "0.0.b10"
 
 
 from .ezFutures import ezFutures
-from .ezFutures_test import ezFutures2
 
 __all__ = [
-	"ezFutures",
-	"ezFutures2"
+	"ezFutures"
 	]

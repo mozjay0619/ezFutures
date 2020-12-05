@@ -1,41 +1,29 @@
-from .utils import printProgressBar
-
-from concurrent.futures import ProcessPoolExecutor
-import concurrent.futures
-
+from .core.managed_processes import ManagedProcesses
+from .core.concurrent_futures_process_pool import ConcurrentFuturesProcessPool
 
 class ezFutures():
     
-    def __init__(self, n_procs=4):
+    def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60, parallelism_mode='managed.processes'):
         
-        self.executor = executor = ProcessPoolExecutor(max_workers=n_procs)
-        self.futures_list = []
-        self.results_list = []
+        self.parallelism_mode = parallelism_mode
+
+        if self.parallelism_mode=='managed.processes':
+            self.core = ManagedProcesses(n_procs=n_procs, verbose=verbose, show_progress=show_progress, timeout=timeout)
+        elif self.parallelism_mode=='concurrent.futures.process.pool':
+            self.core = ConcurrentFuturesProcessPool(n_procs=n_procs)
     
     def submit(self, func, *args, **kwargs):
         
-        future = self.executor.submit(func, *args, **kwargs)
-        self.futures_list.append(future)
+        self.core.submit(func, *args, **kwargs)
         
     def results(self):
         
-        num_tasks = len(self.futures_list)
-        
-        if num_tasks > 0:
-            printProgressBar(0, num_tasks)
+        return self.core.results()
 
-            for idx, future in enumerate(concurrent.futures.as_completed(self.futures_list)):
+    def errors(self):
 
-                self.results_list.append(future.result())
-                printProgressBar(idx, num_tasks)
-
-            self.futures_list = []
-
-            printProgressBar(num_tasks, num_tasks)
-
-            self.executor.shutdown(wait=True)
-        
-        return self.results_list
-    
-    
+        if self.parallelism_mode=='managed.processes':
+            return self.core.shared_error_dict.items()
+        else:    
+            raise Exception('[errors] method only supported for parallelism_mode: managed.processes')
 

@@ -2,8 +2,8 @@ from multiprocessing import Process, Manager, sharedctypes
 from collections import defaultdict
 import time
 
-from .utils import printProgressBar
-from .utils import Timeout
+from ..utils import printProgressBar
+from ..utils import Timeout
 
 
 class WorkerProcess(Process):
@@ -41,9 +41,9 @@ class WorkerProcess(Process):
             self.shared_results_dict[task_idx] = None 
 
 
-class ezFutures2():
+class ManagedProcesses():
     
-    def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60):
+    def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60, *args, **kwargs):
         
         self.task_idx = 0
         
@@ -59,14 +59,24 @@ class ezFutures2():
         self.shared_status_dict = manager.dict()
         self.shared_error_dict = manager.dict()
         
-        self.subprocs = []
+        self.subprocs = dict()
+        self.subprocs_start_times = dict()
         
         self.n_procs = n_procs
         self.verbose = verbose
         self.show_progress = show_progress
         self.timeout = timeout
         
+        self.scattered_vars = dict()
+        
+    def globalize(self, local_var, global_name):
+        
+        self.scattered_vars[global_name] = local_var
+        
     def submit(self, func, *args, **kwargs):
+        
+        if len(self.scattered_vars) > 0:
+            func.__globals__.update(self.scattered_vars)
         
         task_idx = int(self.task_idx)
         self.tasks.append([task_idx, func, args, kwargs])
@@ -110,7 +120,8 @@ class ezFutures2():
                 subproc = self.execute_task(task)
                 self.task_idx_attempt_dict[task_idx] += 1
 
-                self.subprocs.append(subproc)
+                self.subprocs[task_idx] = subproc
+                self.subprocs_start_times[task_idx] = time.time()
                 
             # these are not just pending but completed tasks, whether failed or succeeded
             if(len(self.shared_status_dict.keys()) > 0):
@@ -143,6 +154,10 @@ class ezFutures2():
                     pending_task = self.pending_tasks.pop()
                     pending_task_idx = pending_task[0]
                     
+                    current_time = time.time()
+                    start_time = self.subprocs_start_times[pending_task_idx]
+                    passed_time = current_time - start_time
+                    
                     if self.verbose:
                         print('Looking at pending task {}'.format(pending_task))
                     
@@ -153,7 +168,7 @@ class ezFutures2():
                         if fail_count < 3:
                             
                             if self.verbose:
-                                print('    pending --> tasks: {}'.format(pending_task))
+                                print('    pending --> tasks: {}'.format(pending_task_idx))
                                 print('    failed {} times'.format(fail_count))
                                 
                             # don't append since that will try to do this again right away
@@ -163,7 +178,7 @@ class ezFutures2():
                         else:
                             
                             if self.verbose:
-                                print('    pending --> failed tasks: {}'.format(pending_task))
+                                print('    pending --> failed tasks: {}'.format(pending_task_idx))
                                 print('    * reached MAX_ATTEMPT\n')
                                 
                             # just leave the failed idx alone
@@ -171,7 +186,42 @@ class ezFutures2():
                     elif pending_task_idx in self.successful_tasks_idx:
 
                         if self.verbose:
-                            print('    pending --> successful tasks: {}\n'.format(pending_task))
+                            print('    pending --> successful tasks: {}\n'.format(pending_task_idx))
+                    
+                    # premature and sudden death of Process
+                    elif pending_task_idx not in self.subprocs:
+                        
+                        if self.verbose:
+                            print('    Process terminated abruptly while task {} pending'.format(pending_task_idx))
+                            print('    pending --> tasks')
+                        
+                        fail_count = self.task_idx_attempt_dict[task_idx]
+                        
+                        if fail_count < 3:
+                            
+                            self.tasks.insert(0, pending_task)
+                            
+                        else:
+                            
+                            self.failed_tasks_idx.append(pending_task_idx)
+                    
+                    # timeout 
+                    elif passed_time > self.timeout:
+                        
+                        self.subprocs[pending_task_idx].terminate()
+                        
+                        if self.verbose:
+                            print('    pending task {} --> timed out'.format(pending_task_idx))
+                    
+                        fail_count = self.task_idx_attempt_dict[task_idx]
+                        
+                        if fail_count < 3:
+                            
+                            self.tasks.insert(0, pending_task)
+                            
+                        else:
+                            
+                            self.failed_tasks_idx.append(pending_task_idx)
                         
                     else:
                         
@@ -182,10 +232,13 @@ class ezFutures2():
                         
             if(self.show_progress):
 
-                cur_len = int(len(self.successful_tasks_idx) + len(self.failed_tasks_idx)) 
+                cur_len = int(len(self.successful_tasks_idx) + len(self.failed_tasks_idx))  
                 printProgressBar(cur_len, num_tasks)
-       
-            self.subprocs = [elem for elem in self.subprocs if elem.is_alive()]
+            
+            # subproc dies only after updating shared dicts
+            # by the time the subprocs list updated and IF one drops
+            # that means the shared dicts HAVE to have been updated
+            self.subprocs = {k: v for k, v in self.subprocs.items() if v.is_alive()}
 
             if self.verbose:
                 print('SUBPROC STATUS')

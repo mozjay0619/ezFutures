@@ -32,7 +32,7 @@ class WorkerProcess(Process):
             self.shared_results_dict[task_idx] = None 
 
 
-class ezFutures():
+class ezFutures2():
     
     def __init__(self, n_procs=4, verbose=False, show_progress=True):
         

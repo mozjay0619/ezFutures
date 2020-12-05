@@ -2,6 +2,8 @@ from multiprocessing import Process, Manager, sharedctypes
 from collections import defaultdict
 import time
 
+from .utils import printProgressBar
+
 
 class WorkerProcess(Process):
     

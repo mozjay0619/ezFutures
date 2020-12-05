@@ -3,18 +3,19 @@ from collections import defaultdict
 import time
 
 from .utils import printProgressBar
-from .utils import timeout
+from .utils import Timeout
 
 
 class WorkerProcess(Process):
     
-    def __init__(self, shared_results_dict, shared_status_dict, shared_error_dict, task):
+    def __init__(self, shared_results_dict, shared_status_dict, shared_error_dict, task, timeout):
         super(WorkerProcess, self).__init__()
     
         self.shared_results_dict = shared_results_dict
         self.shared_status_dict = shared_status_dict
         self.shared_error_dict = shared_error_dict
         self.task = task
+        self.timeout = timeout
         
     def run(self):
         """
@@ -26,7 +27,7 @@ class WorkerProcess(Process):
         
         try:
 
-            with timeout(seconds=3):
+            with Timeout(seconds=self.timeout):
 
                 result = func(*args, **kwargs)
                 self.shared_error_dict[task_idx] = None
@@ -42,7 +43,7 @@ class WorkerProcess(Process):
 
 class ezFutures2():
     
-    def __init__(self, n_procs=4, verbose=False, show_progress=True):
+    def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60):
         
         self.task_idx = 0
         
@@ -63,6 +64,7 @@ class ezFutures2():
         self.n_procs = n_procs
         self.verbose = verbose
         self.show_progress = show_progress
+        self.timeout = timeout
         
     def submit(self, func, *args, **kwargs):
         
@@ -72,12 +74,15 @@ class ezFutures2():
         self.task_idx += 1
         
     def execute_task(self, task):
+
+        timeout = int(self.timeout)
         
         subproc = WorkerProcess(
             self.shared_results_dict, 
             self.shared_status_dict, 
             self.shared_error_dict,
-            task)
+            task,
+            timeout)
 
         subproc.daemon = True
         subproc.start()

@@ -1,7 +1,7 @@
 import signal
 
 # https://stackoverflow.com/questions/2281850/timeout-function-if-it-takes-too-long-to-finish
-class timeout:
+class Timeout:
     def __init__(self, seconds=1, error_message='Timeout'):
         self.seconds = seconds
         self.error_message = error_message

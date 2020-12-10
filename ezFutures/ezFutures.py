@@ -3,12 +3,12 @@ from .core.concurrent_futures_process_pool import ConcurrentFuturesProcessPool
 
 class ezFutures():
     
-    def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60, parallelism_mode='managed.processes'):
+    def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60, n_retries=3, parallelism_mode='managed.processes'):
         
         self.parallelism_mode = parallelism_mode
 
         if self.parallelism_mode=='managed.processes':
-            self.core = ManagedProcesses(n_procs=n_procs, verbose=verbose, show_progress=show_progress, timeout=timeout)
+            self.core = ManagedProcesses(n_procs=n_procs, verbose=verbose, show_progress=show_progress, timeout=timeout, n_retries=n_retries)
         elif self.parallelism_mode=='concurrent.futures.process.pool':
             self.core = ConcurrentFuturesProcessPool(n_procs=n_procs)
     

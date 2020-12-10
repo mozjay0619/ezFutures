@@ -1,4 +1,4 @@
-__version__ = "0.0.b12"
+__version__ = "0.0.b13"
 
 
 from .ezFutures import ezFutures

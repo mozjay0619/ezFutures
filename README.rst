@@ -20,7 +20,13 @@ First, we need to import the class:
 
 	from ezFutures import ezFutures
 
-In order to start working with ezFutures, you must instantiate the class object. The most important parameter to set is the ``n_procs`` parameter which defines the number of processes to spawn. 
+In order to start working with ezFutures, you must instantiate the class object. The most important parameter to set is the ``n_procs`` parameter which defines the number of processes to run in parallel.
+
+.. code:: python
+
+	ez = ezFutures(n_procs=19)
+
+From there, you can ``submit`` jobs in a sequential manner, just as you do with concurrent futures. However, because ezFutures default parallelism backend is not concurrent futures, merely submitting a task does not start it off automatically. You have the option of using concurrent futures process pool as the parallelism backend (we will update documentation in the future to describe this)
 
 
 

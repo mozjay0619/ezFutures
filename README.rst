@@ -34,10 +34,23 @@ From there, you can ``submit`` jobs in a sequential manner, just as you do with 
         return(elem)
 
     for i in range(10):
-        ez.submit(task, i)
+        ez.submit(some_task, i)
 
 You can start the jobs by invoking ``results`` method, just as you would with the concurrent futures API. 
 
+.. code:: python
 
+    ez.results()
+    
+    # Progress: |██████████████████████████████████████████████████| 100.0% 
+    # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
+The 10 tasks submitted are done in parallel asynchronously. 
 
+In case there are errors, you can retrieve the stacktrace by invoking ``errors`` method.
+
+.. code:: python
+
+    ez.errors()
+
+The default parallelism backend will try the tasks 3 times (configurable using ``n_retries`` parameter when initializing ezFutures) before marking the task as a "failed" task. 

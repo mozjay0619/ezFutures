@@ -26,9 +26,17 @@ In order to start working with ezFutures, you must instantiate the class object.
 
 	ez = ezFutures(n_procs=19)
 
-From there, you can ``submit`` jobs in a sequential manner, just as you do with concurrent futures. However, because ezFutures default parallelism backend is not concurrent futures, merely submitting a task does not start it off automatically. You have the option of using concurrent futures process pool as the parallelism backend (we will update documentation in the future to describe this)
+From there, you can ``submit`` jobs in a sequential manner, just as you do with concurrent futures. However, because ezFutures default parallelism backend is not concurrent futures, merely submitting a task will not start the job. You have the option of using concurrent futures process pool as the parallelism backend (we will update documentation in the future to describe this)
 
+.. code:: python
+    
+    def some_task(elem):
+        return(elem)
 
+    for i in range(10):
+        ez.submit(task, i)
+
+You can start the jobs by invoking ``results`` method, just as you would with the concurrent futures API. 
 
 
 

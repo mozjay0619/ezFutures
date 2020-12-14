@@ -43,9 +43,9 @@ You can start the jobs by invoking ``results`` method, just as you would with th
     ez.results()
     
     # Progress: |██████████████████████████████████████████████████| 100.0% 
-    # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    # [1, 2, 7, 0, 8, 3, 5, 4, 9, 6]
 
-The 10 tasks submitted are done in parallel asynchronously. 
+The 10 tasks submitted are done in parallel asynchronously, which is why the returned results order is jumbled. 
 
 In case there are errors, you can retrieve the stacktrace by invoking ``errors`` method.
 

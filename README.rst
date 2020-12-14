@@ -14,11 +14,15 @@ Install
 Getting started
 ---------------
 
-First, we need to import the package:
+First, we need to import the class:
 
 .. code:: python
 
-	import ezFutures
+	from ezFutures import ezFutures
+
+In order to start working with ezFutures, you must instantiate the class object. The most important parameter to set is the ``n_procs`` parameter which defines the number of processes to spawn. 
+
+
 
 
 

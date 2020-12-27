@@ -14,7 +14,7 @@ class Timeout:
         signal.alarm(0)
 
 
-def printProgressBar(iteration, total, prefix = 'Progress:', suffix = '', decimals = 1, length = 50, fill = '█', printEnd = "\r"):
+def printProgressBar(iteration, total, prefix = 'Progress:', suffix = 'Completed!', decimals = 1, length = 50, fill = '█', printEnd = "\r"):
     """
     Call in a loop to create terminal progress bar
     @params:

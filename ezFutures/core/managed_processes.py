@@ -258,7 +258,7 @@ class ManagedProcesses():
                 time.sleep(0.1)
                 
         if(self.show_progress):
-            printProgressBar(num_tasks, num_tasks)
+            printProgressBar(num_tasks, num_tasks, suffix = 'Completed!')
             print()
             
         return self.shared_results_dict.values()

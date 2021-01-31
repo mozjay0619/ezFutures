@@ -10,6 +10,9 @@ from ..utils import Timeout
 def format_Warning(message, category, filename, lineno, line=''):
     return str(filename) + ':' + str(lineno) + ': ' + category.__name__ + ': ' +str(message) + '\n'
 
+class TASK_FAILED(UserWarning):
+    pass
+
 class WorkerProcess(Process):
     
     def __init__(self, shared_results_dict, shared_status_dict, shared_error_dict, task, timeout):
@@ -188,7 +191,7 @@ class ManagedProcesses():
                             warning_msg = 'task id {} failed due to: {}'.format(
                                 pending_task_idx, self.shared_error_dict[pending_task_idx])
 
-                            warnings.warn(warning_msg)
+                            warnings.warn(warning_msg, TASK_FAILED)
                             
                             if self.verbose:
                                 print('    pending --> failed tasks: {}'.format(pending_task_idx))

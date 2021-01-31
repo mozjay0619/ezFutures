@@ -1,10 +1,14 @@
 from multiprocessing import Process, Manager, sharedctypes
 from collections import defaultdict
 import time
+import warnings
 
 from ..utils import printProgressBar
 from ..utils import Timeout
 
+
+def format_Warning(message, category, filename, lineno, line=''):
+    return str(filename) + ':' + str(lineno) + ': ' + category.__name__ + ': ' +str(message) + '\n'
 
 class WorkerProcess(Process):
     
@@ -44,6 +48,9 @@ class WorkerProcess(Process):
 class ManagedProcesses():
     
     def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60, n_retries=3, *args, **kwargs):
+
+        warnings.filterwarnings("module")
+        warnings.formatwarning = format_Warning
         
         self.task_idx = 0
         
@@ -177,6 +184,11 @@ class ManagedProcesses():
                             self.failed_tasks_idx.remove(pending_task_idx)  # give it another chance
                                 
                         else:
+
+                            warning_msg = 'task id {} failed due to: {}'.format(
+                                pending_task_idx, self.shared_error_dict[pending_task_idx])
+
+                            warnings.warn(warning_msg)
                             
                             if self.verbose:
                                 print('    pending --> failed tasks: {}'.format(pending_task_idx))

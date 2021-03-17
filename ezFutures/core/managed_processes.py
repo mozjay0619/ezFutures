@@ -50,7 +50,7 @@ class WorkerProcess(Process):
 
 class ManagedProcesses():
     
-    def __init__(self, n_procs=4, verbose=False, show_progress=True, timeout=60*60, n_retries=3, *args, **kwargs):
+    def __init__(self, n_procs=4, verbose=False, timeout=60*60, n_retries=3, *args, **kwargs):
 
         warnings.filterwarnings("module")
         warnings.formatwarning = format_Warning
@@ -74,7 +74,6 @@ class ManagedProcesses():
         
         self.n_procs = n_procs
         self.verbose = verbose
-        self.show_progress = show_progress
         self.timeout = timeout
         self.n_retries = n_retries
         
@@ -109,12 +108,12 @@ class ManagedProcesses():
         subproc.start()
         return subproc
 
-    def results(self):
+    def results(self, show_progress):
         
         self.tasks = self.tasks[::-1]
         num_tasks = len(self.tasks)
         
-        if(self.show_progress):
+        if(show_progress):
             printProgressBar(0, num_tasks)
         
         while(len(self.pending_tasks) > 0 or len(self.tasks) > 0):
@@ -246,7 +245,7 @@ class ManagedProcesses():
 
                         self.pending_tasks.insert(0, pending_task)
                         
-            if(self.show_progress):
+            if(show_progress):
 
                 cur_len = int(len(self.successful_tasks_idx) + len(self.failed_tasks_idx))  
                 printProgressBar(cur_len, num_tasks)
@@ -272,7 +271,7 @@ class ManagedProcesses():
             if(len(self.subprocs) > 0 and len(self.tasks) == 0):
                 time.sleep(0.1)
                 
-        if(self.show_progress):
+        if(show_progress):
             printProgressBar(num_tasks, num_tasks, suffix = 'Completed!')
             print()
             

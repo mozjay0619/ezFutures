@@ -1,9 +1,14 @@
 from .core.managed_processes import ManagedProcesses
 from .core.concurrent_futures_process_pool import ConcurrentFuturesProcessPool
 
+import psutil
+
 class ezFutures():
     
-    def __init__(self, n_procs=4, verbose=False, timeout=60*60, n_retries=3, parallelism_mode='managed.processes'):
+    def __init__(self, n_procs=None, verbose=False, timeout=60*60, n_retries=3, parallelism_mode='managed.processes'):
+
+        if n_procs is None:
+            n_procs = psutil.cpu_count(logical=False)
         
         self.parallelism_mode = parallelism_mode
 

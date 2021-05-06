@@ -2,6 +2,14 @@ from .core.managed_processes import ManagedProcesses
 from .core.concurrent_futures_process_pool import ConcurrentFuturesProcessPool
 
 import psutil
+from .utils import isnotebook
+
+if isnotebook():
+    # https://docs.python.org/3/library/multiprocessing.html#contexts-and-start-methods
+    # https://stackoverflow.com/questions/64095876/multiprocessing-fork-vs-spawn
+    print('ezFutures used on Jupyter Notebook: defaulting to fork subprocess start method')
+    import multiprocessing
+    multiprocessing.set_start_method('fork')
 
 class ezFutures():
     

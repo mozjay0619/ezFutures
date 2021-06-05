@@ -1,4 +1,7 @@
 import signal
+import textwrap
+import inspect
+import ast
 
 # https://stackoverflow.com/questions/2281850/timeout-function-if-it-takes-too-long-to-finish
 class Timeout:
@@ -34,16 +37,7 @@ def printProgressBar(iteration, total, prefix = 'Progress:', suffix = '', decima
     if iteration == total: 
         print(f'\r', end = printEnd)
 
-# https://stackoverflow.com/questions/15411967/how-can-i-check-if-code-is-executed-in-the-ipython-notebook
-def isnotebook():
-
-    try:
-        shell = get_ipython().__class__.__name__
-        if shell == 'ZMQInteractiveShell':
-            return True   # Jupyter notebook or qtconsole
-        elif shell == 'TerminalInteractiveShell':
-            return False  # Terminal running IPython
-        else:
-            return False  # Other type (?)
-    except NameError:
-        return False      # Probably standard Python interpreter
+def contains_return_statement(func):
+    func = textwrap.dedent(inspect.getsource(func))
+    func_source_tree = ast.walk(ast.parse(func))
+    return any(isinstance(node, ast.Return) for node in func_source_tree)
